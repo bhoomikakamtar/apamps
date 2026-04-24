@@ -25,7 +25,7 @@ export default function History() {
   };
 
   return (
-    <div className="animate-fade-in-up" style={{ maxWidth: '800px', margin: '0 auto' }}>
+    <div className="animate-fade-in-up container" style={{ maxWidth: '840px' }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <h1>Meal History</h1>
@@ -51,19 +51,19 @@ export default function History() {
 
       {/* Stats bar */}
       {history.length > 0 && (
-        <div className="glass-panel mb-6" style={{ padding: '1.25rem 1.5rem', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', textAlign: 'center' }}>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: '1.5rem', color: 'var(--color-primary)' }}>{history.length}</div>
+        <div className="glass-panel mb-6" style={{ padding: '1.25rem 1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', textAlign: 'center' }}>
+          <div style={{ padding: '0.5rem' }}>
+            <div style={{ fontWeight: 800, fontSize: 'clamp(1.2rem, 4vw, 1.5rem)', color: 'var(--color-primary)' }}>{history.length}</div>
             <div className="text-xs text-faint uppercase tracking-wide">Total Plans</div>
           </div>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: '1.5rem', color: '#6366F1' }}>
+          <div style={{ padding: '0.5rem' }}>
+            <div style={{ fontWeight: 800, fontSize: 'clamp(1.2rem, 4vw, 1.5rem)', color: '#6366F1' }}>
               {Math.round(history.reduce((s, h) => s + (h.totalCalories || 0), 0) / history.length)}
             </div>
             <div className="text-xs text-faint uppercase tracking-wide">Avg. kcal/day</div>
           </div>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: '1.5rem', color: '#F59E0B' }}>
+          <div style={{ padding: '0.5rem' }}>
+            <div style={{ fontWeight: 800, fontSize: 'clamp(1.2rem, 4vw, 1.5rem)', color: '#F59E0B' }}>
               {history.filter(h => h.menstrualPhase).length}
             </div>
             <div className="text-xs text-faint uppercase tracking-wide">Cycle-Synced</div>

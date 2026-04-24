@@ -71,15 +71,15 @@ function MealSlot({ slotKey, meal }) {
             </p>
           </div>
           {/* Macros */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "0.75rem", marginTop: "1rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(80px, 1fr))", gap: "0.75rem", marginTop: "1rem" }}>
             {[
               { label: "Protein", value: meal.protein, unit: "g", color: "#EF4444", bar: "bg-protein" },
               { label: "Carbs",   value: meal.carbs,   unit: "g", color: "#F59E0B", bar: "bg-carbs" },
               { label: "Fats",    value: meal.fats,    unit: "g", color: "#3B82F6", bar: "bg-fats" },
             ].map(m => (
               <div key={m.label} style={{ textAlign: "center" }}>
-                <div style={{ fontWeight: 700, color: m.color }}>{m.value}{m.unit}</div>
-                <div className="text-xs text-faint uppercase tracking-wide">{m.label}</div>
+                <div style={{ fontWeight: 700, color: m.color, fontSize: '0.9rem' }}>{m.value}{m.unit}</div>
+                <div className="text-xs text-faint uppercase tracking-wide" style={{ fontSize: '0.65rem' }}>{m.label}</div>
                 <MacroBar value={m.value} max={total} className={m.bar} />
               </div>
             ))}
@@ -136,16 +136,16 @@ export default function DayPlanCard({ plan }) {
         <h3 className="mb-4 flex items-center gap-2">
           <TrendingUp size={20} style={{ color: "var(--color-primary)" }} /> Today's Nutritional Overview
         </h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "0.75rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "0.75rem" }}>
           {[
             { label: "Calories",  value: plan.totalCalories, unit: "kcal", color: "var(--color-primary)" },
             { label: "Protein",   value: plan.totalProtein,  unit: "g",    color: "#EF4444" },
             { label: "Carbs",     value: plan.totalCarbs,    unit: "g",    color: "#F59E0B" },
             { label: "Fats",      value: plan.totalFats,     unit: "g",    color: "#3B82F6" },
           ].map(s => (
-            <div key={s.label} className="stat-card">
-              <div className="stat-value" style={{ color: s.color }}>{s.value}<span style={{ fontSize: "0.8rem", fontWeight: 500 }}>{s.unit}</span></div>
-              <div className="stat-label">{s.label}</div>
+            <div key={s.label} className="stat-card" style={{ padding: '1rem 0.5rem' }}>
+              <div className="stat-value" style={{ color: s.color, fontSize: '1.4rem' }}>{s.value}<span style={{ fontSize: "0.75rem", fontWeight: 500 }}>{s.unit}</span></div>
+              <div className="stat-label" style={{ fontSize: '0.7rem' }}>{s.label}</div>
             </div>
           ))}
         </div>

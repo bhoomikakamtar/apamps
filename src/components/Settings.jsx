@@ -10,6 +10,8 @@ export default function Settings() {
   });
   const [calculatedPhase, setCalcPhase] = useState(null);
   const [saved, setSaved] = useState(false);
+  const [notifEnabled, setNotifEnabled] = useState(localStorage.getItem('notificationsEnabled') === 'true');
+  const [notifPermission, setNotifPermission] = useState(typeof Notification !== 'undefined' ? Notification.permission : 'default');
 
   useEffect(() => {
     try {
@@ -56,7 +58,7 @@ export default function Settings() {
   const maxDate = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="animate-fade-in-up" style={{ maxWidth: '700px', margin: '0 auto' }}>
+    <div className="animate-fade-in-up container" style={{ maxWidth: '800px' }}>
       <h1 className="mb-8">Settings</h1>
 
       <form onSubmit={handleSave}>
@@ -135,21 +137,21 @@ export default function Settings() {
         </div>
 
         {/* ── Allergies ── */}
-        <div className="glass-panel p-8 mb-6">
+        <div className="glass-panel p-6 mb-6">
           <h3 className="flex items-center gap-2 mb-2" style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem' }}>
             <AlertTriangle size={20} style={{ color: '#F59E0B' }} /> Allergies & Intolerances
           </h3>
           <p className="text-sm text-muted mb-4">
             Meals containing these ingredients will be <strong>automatically excluded</strong> from your plans.
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '0.6rem' }}>
             {ALLERGENS.map(a => (
               <button key={a.id} type="button" id={`s-allergy-${a.id}`}
                 className="btn btn-phase"
                 style={
                   profile.allergies.includes(a.id)
-                    ? { borderColor: '#EF4444', color: '#EF4444', background: 'rgba(239,68,68,0.1)', textDecoration: 'line-through' }
-                    : {}
+                    ? { borderColor: '#EF4444', color: '#EF4444', background: 'rgba(239,68,68,0.1)', textDecoration: 'line-through', padding: '0.6rem', fontSize: '0.85rem' }
+                    : { padding: '0.6rem', fontSize: '0.85rem' }
                 }
                 onClick={() => toggleAllergen(a.id)}>
                 {a.emoji} {a.label}
@@ -161,7 +163,7 @@ export default function Settings() {
 
         {/* ── Menstrual Cycle (female only) ── */}
         {profile.gender === 'female' && (
-          <div className="glass-panel p-8 mb-6" style={{ borderColor: 'rgba(249,168,212,0.3)', background: 'rgba(249,168,212,0.03)' }}>
+          <div className="glass-panel p-6 mb-6" style={{ borderColor: 'rgba(249,168,212,0.3)', background: 'rgba(249,168,212,0.03)' }}>
             <h3 className="flex items-center gap-2 mb-2" style={{ borderBottom: '1px solid rgba(249,168,212,0.2)', paddingBottom: '1rem', color: '#F9A8D4' }}>
               🩸 Menstrual Cycle
             </h3>
@@ -210,17 +212,20 @@ export default function Settings() {
             )}
 
             {/* All 4 phases mini-reference */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem' }}>
               {menstrualPhases.map(phase => (
                 <div key={phase.id} style={{
                   background: calculatedPhase?.id === phase.id ? phase.colorLight : 'rgba(255,255,255,0.03)',
                   border: `1px solid ${calculatedPhase?.id === phase.id ? phase.color + '60' : 'var(--color-border)'}`,
                   borderRadius: 'var(--radius-sm)',
-                  padding: '0.6rem 0.75rem',
+                  padding: '0.75rem',
                   opacity: calculatedPhase && calculatedPhase.id !== phase.id ? 0.45 : 1,
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.2rem'
                 }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.8rem', color: phase.color }}>{phase.emoji} {phase.name}</div>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem', color: phase.color }}>{phase.emoji} {phase.name}</div>
                   <div className="text-xs text-faint">{phase.days}</div>
                 </div>
               ))}
@@ -234,6 +239,64 @@ export default function Settings() {
             </div>
           </div>
         )}
+
+        {/* ── Notifications ── */}
+        <div className="glass-panel p-6 mb-6">
+          <h3 className="flex items-center gap-2 mb-2" style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem' }}>
+            <Activity size={20} style={{ color: 'var(--color-primary)' }} /> Notifications
+          </h3>
+          <p className="text-sm text-muted mb-6">
+            Get reminded of your perfectly timed meals throughout the day.
+          </p>
+
+          <div className="flex items-center justify-between p-4 bg-surface rounded-lg border border-border" style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-md)', padding: '1rem', border: '1px solid var(--color-border)' }}>
+            <div>
+              <div style={{ fontWeight: 600 }}>Daily Meal Reminders</div>
+              <div className="text-xs text-faint">Morning, Afternoon, Snacks & Dinner</div>
+            </div>
+            <button
+              type="button"
+              className={`btn ${notifEnabled ? 'btn-primary' : 'btn-ghost'}`}
+              style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
+              onClick={() => {
+                const newState = !notifEnabled;
+                setNotifEnabled(newState);
+                localStorage.setItem('notificationsEnabled', newState);
+                
+                if (newState && Notification.permission === 'default') {
+                  Notification.requestPermission().then(setNotifPermission);
+                }
+              }}
+            >
+              {notifEnabled ? 'Enabled' : 'Disabled'}
+            </button>
+          </div>
+
+          <div className="flex gap-3 mt-4">
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={{ flex: 1, fontSize: '0.85rem', padding: '0.6rem' }}
+              onClick={() => {
+                if (Notification.permission !== 'granted') {
+                  Notification.requestPermission().then(setNotifPermission);
+                } else {
+                  new Notification("NutriPhase Notifications Active!", {
+                    body: "You will now receive meal reminders at scheduled times.",
+                    icon: "/favicon.svg"
+                  });
+                }
+              }}
+            >
+              Test Notification
+            </button>
+            {notifPermission === 'denied' && (
+              <p className="text-xs text-faint mt-2" style={{ color: '#EF4444' }}>
+                Notifications are blocked by your browser. Please enable them in site settings.
+              </p>
+            )}
+          </div>
+        </div>
 
         {/* ── Actions ── */}
         <div className="flex gap-4">

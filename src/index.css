@@ -34,6 +34,11 @@
   --shadow-btn: 0 4px 20px rgba(16, 185, 129, 0.4);
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
 }
 
 /* =========
@@ -100,9 +105,15 @@ p { color: var(--color-text-muted); line-height: 1.7; }
    LAYOUT
    ========= */
 .container {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem;
+  padding: 2rem 1rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 3rem 2rem;
+  }
 }
 
 /* =========
@@ -387,17 +398,38 @@ p { color: var(--color-text-muted); line-height: 1.7; }
 /* =========
    GRID UTILS
    ========= */
-.grid { display: grid; gap: 1.5rem; }
+.grid { 
+  display: grid; 
+  gap: 1rem; 
+}
+
+@media (min-width: 768px) {
+  .grid { gap: 1.5rem; }
+}
+
 .grid-1 { grid-template-columns: 1fr; }
 .grid-2 { grid-template-columns: repeat(2, 1fr); }
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 .grid-4 { grid-template-columns: repeat(4, 1fr); }
 
-@media (max-width: 768px) {
+/* Responsive Grid Overrides */
+@media (max-width: 900px) {
+  .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
 }
-@media (min-width: 640px) and (max-width: 1023px) {
-  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .week-desktop-grid { display: none !important; }
+  .week-mobile-nav { display: block !important; }
 }
 
 /* =========

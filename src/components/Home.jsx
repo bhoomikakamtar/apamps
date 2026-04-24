@@ -69,63 +69,46 @@ export default function Home() {
   }, []);
 
   return (
-    <div
-      className="animate-fade-in-up"
-      style={{
-        maxWidth: '860px',
-        width: '100%',
-        margin: '0 auto',
-        padding: '0 1rem'
-      }}
-    >
+    <div className="animate-fade-in-up container" style={{ maxWidth: '900px' }}>
 
       {/* HERO */}
-      <div
-        className="glass-panel text-center"
-        style={{
-          padding: '3rem 1.5rem',
-          marginBottom: '2rem'
-        }}
-      >
+      <div className="glass-panel text-center" style={{ padding: 'clamp(2rem, 8vw, 4rem) 1.5rem', marginBottom: '2rem' }}>
         <h1>
           <span className="gradient-text">Smart Nutrition,</span><br />
           Perfectly Timed.
         </h1>
 
-        <p className="text-muted">
+        <p className="text-muted" style={{ fontSize: 'clamp(1rem, 3vw, 1.15rem)', maxWidth: '500px', margin: '0.5rem auto 2rem' }}>
           Personalized meal plans based on your body & goals.
         </p>
 
         <button
           className="btn btn-primary"
           onClick={() => navigate('/dashboard')}
+          style={{ padding: '0.85rem 2rem', fontSize: '1.05rem' }}
         >
           Get Your Meal Plan <ArrowRight size={20} />
         </button>
       </div>
 
-      {/* FEATURES (RESPONSIVE SAFE GRID) */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '1rem'
-        }}
-      >
+      {/* FEATURES (RESPONSIVE GRID) */}
+      <div className="responsive-grid">
         {FEATURES.map((f, i) => (
           <div
             key={i}
             className="glass-panel"
             style={{
-              padding: '1.5rem',
-              minHeight: '160px'
+              padding: '1.75rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem'
             }}
           >
-            <div style={{ color: f.color, marginBottom: '0.5rem' }}>
+            <div style={{ color: f.color, marginBottom: '0.25rem' }}>
               {f.icon}
             </div>
-            <h4 style={{ marginBottom: '0.5rem' }}>{f.title}</h4>
-            <p className="text-muted" style={{ margin: 0 }}>
+            <h4 style={{ margin: 0 }}>{f.title}</h4>
+            <p className="text-sm text-muted" style={{ margin: 0, lineHeight: 1.5 }}>
               {f.desc}
             </p>
           </div>

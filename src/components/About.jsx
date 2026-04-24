@@ -3,7 +3,7 @@ import { menstrualPhases } from './RecommendationEngine';
 
 export default function About() {
   return (
-    <div className="animate-fade-in-up" style={{ maxWidth: '820px', margin: '0 auto' }}>
+    <div className="animate-fade-in-up container" style={{ maxWidth: '900px' }}>
       <h1 className="mb-8">About NutriPhase</h1>
 
       {/* ── What is it ── */}
@@ -20,9 +20,9 @@ export default function About() {
       </div>
 
       {/* ── Core Modules ── */}
-      <div className="glass-panel p-8 mb-6">
+      <div className="glass-panel p-6 mb-6">
         <h3 className="mb-6 flex items-center gap-2"><Brain size={20} style={{ color: '#6366F1' }} /> Core Modules</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '1rem' }}>
+        <div className="grid grid-2 gap-4">
           {[
             { color: '#10B981', icon: <Activity size={18} />, title: 'Recommendation Engine', desc: 'Rule-based system mapping phase, goal, diet type, and allergens to a curated meal database of 35+ meals.' },
             { color: '#EC4899', icon: '🩸', title: 'Menstrual Cycle Tracker', desc: 'Enter last period date → NutriPhase computes cycle day → selects the correct phase (Menstrual, Follicular, Ovulation, Luteal) and adjusts nutrients accordingly.' },
@@ -41,10 +41,10 @@ export default function About() {
       </div>
 
       {/* ── Menstrual Phases ── */}
-      <div className="glass-panel p-8 mb-6">
+      <div className="glass-panel p-6 mb-6">
         <h3 className="mb-2">🩸 The 4 Menstrual Phases</h3>
         <p className="text-muted text-sm mb-6">Each phase has different hormonal and nutritional needs. NutriPhase calculates your phase automatically from your last period date.</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '1rem' }}>
+        <div className="grid grid-2 gap-4">
           {menstrualPhases.map(phase => (
             <div key={phase.id} style={{
               background: phase.colorLight,
@@ -76,9 +76,9 @@ export default function About() {
       </div>
 
       {/* ── Tech Stack ── */}
-      <div className="glass-panel p-8 mb-6">
+      <div className="glass-panel p-6 mb-6">
         <h3 className="mb-4 flex items-center gap-2"><ShieldCheck size={20} style={{ color: 'var(--color-primary)' }} /> Tech Stack</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '0.75rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
           {[
             { label: 'React.js',           sub: 'UI Framework',         color: '#61DAFB' },
             { label: 'Vite',               sub: 'Build Tool',           color: '#646CFF' },
@@ -88,19 +88,19 @@ export default function About() {
             { label: 'localStorage',       sub: 'Offline Fallback',     color: '#94A3B8' },
           ].map((t, i) => (
             <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '1rem', textAlign: 'center' }}>
-              <div style={{ fontWeight: 700, color: t.color, marginBottom: '0.2rem' }}>{t.label}</div>
-              <div className="text-xs text-faint">{t.sub}</div>
+              <div style={{ fontWeight: 700, color: t.color, fontSize: '0.95rem', marginBottom: '0.2rem' }}>{t.label}</div>
+              <div className="text-xs text-faint" style={{ fontSize: '0.65rem' }}>{t.sub}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* ── SDG ── */}
-      <div className="glass-panel p-8" style={{ borderColor: '#4C9F3840' }}>
+      <div className="glass-panel p-6" style={{ borderColor: '#4C9F3840' }}>
         <h3 className="mb-4 flex items-center gap-2"><Globe size={20} style={{ color: '#4C9F38' }} /> UN Sustainable Development Goals</h3>
-        <div style={{ background: 'linear-gradient(135deg, #3a7d32, #4C9F38)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+        <div style={{ background: 'linear-gradient(135deg, #3a7d32, #4C9F38)', borderRadius: 'var(--radius-lg)', padding: 'clamp(1rem, 5vw, 2rem)', display: 'flex', gap: '1.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
           <div style={{ fontSize: '3rem', fontWeight: 900, lineHeight: 1, color: 'white', flexShrink: 0 }}>3</div>
-          <div>
+          <div style={{ flex: 1, minWidth: '240px' }}>
             <div style={{ fontWeight: 700, color: 'white', fontSize: '1.1rem', marginBottom: '0.5rem' }}>Good Health and Well-being</div>
             <p style={{ margin: 0, color: 'rgba(255,255,255,0.85)', fontSize: '0.95rem', lineHeight: 1.7 }}>
               NutriPhase promotes healthy, informed eating habits for people of all ages by providing accessible, personalised nutrition guidance — supporting SDG Goal 3: ensuring healthy lives and well-being.

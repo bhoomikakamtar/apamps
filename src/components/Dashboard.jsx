@@ -90,7 +90,7 @@ export default function Dashboard() {
   const maxDate  = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="animate-fade-in-up" style={{ maxWidth:'880px', margin:'0 auto' }}>
+    <div className="animate-fade-in-up container" style={{ maxWidth:'900px' }}>
 
       {/* Header */}
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
@@ -114,12 +114,12 @@ export default function Dashboard() {
       </div>
 
       {/* ── Card 1: Profile & Diet ── */}
-      <div className="glass-panel p-8 mb-5">
+      <div className="glass-panel p-6 mb-5">
         <h3 className="flex items-center gap-2 mb-6" style={{ borderBottom:'1px solid var(--color-border)', paddingBottom:'1rem' }}>
-          <User size={18} style={{ color:'var(--color-primary)' }}/> Profile & Diet
+          <Leaf size={18} style={{ color:'var(--color-primary)' }}/> Profile & Diet
         </h3>
-        <div className="grid grid-2 gap-8">
-          <div className="flex flex-col gap-5">
+        <div className="grid grid-2 gap-6">
+          <div className="flex flex-col gap-6">
             {/* Gender */}
             <div>
               <label className="form-label">Gender</label>
@@ -127,6 +127,7 @@ export default function Dashboard() {
                 {[{id:'male',label:'♂ Male'},{id:'female',label:'♀ Female'},{id:'prefer_not',label:'Other'}].map(g => (
                   <button key={g.id} id={`gender-${g.id}`}
                     className={`btn btn-phase ${gender===g.id?'active':''}`}
+                    style={{ flex: '1 1 100px' }}
                     onClick={() => { setGender(g.id); if(g.id!=='female'){setPeriodDate('');setCalcPhase(null);} }}>
                     {g.label}
                   </button>
@@ -135,12 +136,15 @@ export default function Dashboard() {
             </div>
             {/* Diet */}
             <div>
-              <label className="form-label flex items-center gap-2"><Leaf size={13}/> Dietary Preference</label>
+              <label className="form-label flex items-center gap-2"><Sparkles size={13}/> Dietary Preference</label>
               <div className="flex gap-2 flex-wrap">
                 {DIET_OPTIONS.map(d => (
                   <button key={d.id} id={`diet-${d.id}`}
                     className={`btn btn-phase ${diet===d.id?'active':''}`}
-                    style={diet===d.id?{borderColor:d.color,color:d.color,background:`${d.color}18`}:{}}
+                    style={{ 
+                      flex: '1 1 120px',
+                      ...(diet===d.id?{borderColor:d.color,color:d.color,background:`${d.color}18`}:{})
+                    }}
                     onClick={() => setDiet(d.id)}>
                     {d.emoji} {d.label}
                   </button>
@@ -168,16 +172,20 @@ export default function Dashboard() {
       </div>
 
       {/* ── Card 2: Allergies ── */}
-      <div className="glass-panel p-8 mb-5">
+      <div className="glass-panel p-6 mb-5">
         <h3 className="flex items-center gap-2 mb-2" style={{ borderBottom:'1px solid var(--color-border)', paddingBottom:'1rem' }}>
           <AlertTriangle size={18} style={{ color:'#F59E0B' }}/> Allergies & Intolerances
         </h3>
         <p className="text-sm text-muted mb-4">Tap to exclude. Matching ingredients will be removed from every meal slot.</p>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'0.6rem' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(130px, 1fr))', gap:'0.6rem' }}>
           {ALLERGENS.map(a => (
             <button key={a.id} id={`allergy-${a.id}`}
               className="btn btn-phase"
-              style={allergies.includes(a.id)?{borderColor:'#EF4444',color:'#EF4444',background:'rgba(239,68,68,0.1)',textDecoration:'line-through'}:{}}
+              style={{
+                padding: '0.6rem',
+                fontSize: '0.85rem',
+                ...(allergies.includes(a.id)?{borderColor:'#EF4444',color:'#EF4444',background:'rgba(239,68,68,0.1)',textDecoration:'line-through'}:{})
+              }}
               onClick={() => toggleAllergen(a.id)}>
               {a.emoji} {a.label}
             </button>
@@ -192,7 +200,7 @@ export default function Dashboard() {
 
       {/* ── Card 3: Menstrual Cycle (female only) ── */}
       {isFemale && (
-        <div className="glass-panel p-8 mb-5" style={{ borderColor:'rgba(249,168,212,0.3)' }}>
+        <div className="glass-panel p-6 mb-5" style={{ borderColor:'rgba(249,168,212,0.3)' }}>
           <h3 className="flex items-center gap-2 mb-2" style={{ borderBottom:'1px solid rgba(249,168,212,0.2)', paddingBottom:'1rem', color:'#F9A8D4' }}>
             🩸 Menstrual Cycle Tracker
           </h3>
@@ -217,16 +225,19 @@ export default function Dashboard() {
           <PhasePill phase={calculatedPhase}/>
 
           {/* Phase reference mini-cards */}
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'0.5rem', marginTop:'1rem' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(140px, 1fr))', gap:'0.5rem', marginTop:'1.5rem' }}>
             {menstrualPhases.map(phase => (
               <div key={phase.id} style={{
                 background: calculatedPhase?.id===phase.id ? phase.colorLight : 'rgba(255,255,255,0.03)',
                 border:`1px solid ${calculatedPhase?.id===phase.id ? phase.color+'60' : 'var(--color-border)'}`,
-                borderRadius:'var(--radius-sm)', padding:'0.6rem 0.75rem',
+                borderRadius:'var(--radius-sm)', padding:'0.75rem',
                 opacity: calculatedPhase && calculatedPhase.id!==phase.id ? 0.45 : 1,
-                transition:'all 0.2s'
+                transition:'all 0.2s',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.2rem'
               }}>
-                <div style={{ fontWeight:700, fontSize:'0.8rem', color:phase.color }}>{phase.emoji} {phase.name}</div>
+                <div style={{ fontWeight:700, fontSize:'0.85rem', color:phase.color }}>{phase.emoji} {phase.name}</div>
                 <div className="text-xs text-faint">{phase.days}</div>
               </div>
             ))}

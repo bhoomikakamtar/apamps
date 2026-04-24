@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Leaf, Mail, Lock, User, Eye, EyeOff, ArrowRight, Info } from 'lucide-react';
-import { hasSupabaseConfig } from '../supabaseClient';
+import { hasSupabaseConfig, supabase } from '../supabaseClient';
 
 export default function Login() {
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
@@ -31,29 +31,45 @@ export default function Login() {
       setLoading(false);
       setError(err.message || 'Something went wrong. Please try again.');
     } else {
+      // Check if it was a signup with Supabase (real auth)
+      if (mode === 'signup' && hasSupabaseConfig) {
+        setError('Verification email sent! Please check your inbox before signing in.');
+        setLoading(false);
+        setMode('signin');
+        return;
+      }
+
       try {
-        // ✅ Get logged-in user
-        const { data: { user } } = await supabase.auth.getUser();
+        if (hasSupabaseConfig) {
+          // ✅ Get logged-in user
+          const { data: { user } } = await supabase.auth.getUser();
 
-        if (user) {
-          // ✅ Check if already exists
-          const { data: existing } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', user.email);
+          if (user) {
+            // ✅ Check if already exists
+            const { data: existing } = await supabase
+              .from('users')
+              .select('*')
+              .eq('email', user.email);
 
-          // ✅ Insert if new user
-          if (!existing || existing.length === 0) {
-            await supabase.from('users').insert([
-              {
-                email: user.email,
-                name: user.user_metadata?.name || user.email.split('@')[0]
-              }
-            ]);
+            // ✅ Insert if new user
+            if (!existing || existing.length === 0) {
+              await supabase.from('users').insert([
+                {
+                  email: user.email,
+                  name: user.user_metadata?.name || user.email.split('@')[0]
+                }
+              ]);
+            }
           }
+        }
+        
+        // Only navigate if we're not waiting for email verification
+        if (mode === 'signin' || !hasSupabaseConfig) {
+          navigate('/home');
         }
       } catch (e) {
         console.error("DB ERROR:", e);
+        navigate('/home');
       }
 
       setLoading(false);
@@ -62,50 +78,62 @@ export default function Login() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh', display: 'flex', alignItems: 'stretch',
-      margin: '-2.5rem -1.5rem', // undo container padding
+    <div className="login-wrapper" style={{
+      minHeight: '100vh', 
+      display: 'flex', 
+      flexDirection: 'row',
+      alignItems: 'stretch',
+      margin: '-2rem -1rem', // Adjust for container padding
+      flexWrap: 'wrap'
     }}>
       {/* ── Left panel: branding ── */}
-      <div style={{
-        flex: '0 0 42%', display: 'flex', flexDirection: 'column',
-        justifyContent: 'center', alignItems: 'center', padding: '3rem',
+      <div className="login-brand-panel" style={{
+        flex: '1 1 400px', 
+        display: 'flex', 
+        flexDirection: 'column',
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        padding: 'clamp(2rem, 5vw, 4rem)',
         background: 'linear-gradient(160deg, rgba(16,185,129,0.2) 0%, rgba(99,102,241,0.15) 100%)',
         borderRight: '1px solid var(--color-border)',
-        position: 'relative', overflow: 'hidden',
+        position: 'relative', 
+        overflow: 'hidden',
+        minHeight: '400px'
       }}>
         {/* Decorative circles */}
         <div style={{ position: 'absolute', top: '-60px', left: '-60px', width: '220px', height: '220px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(16,185,129,0.2) 0%,transparent 70%)' }} />
         <div style={{ position: 'absolute', bottom: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.2) 0%,transparent 70%)' }} />
 
-        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', width: '100%', maxWidth: '400px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
             <div style={{ width: 60, height: 60, borderRadius: '16px', background: 'linear-gradient(135deg,var(--color-primary),var(--color-secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Leaf size={32} color="white" />
             </div>
           </div>
-          <h1 className="gradient-text" style={{ fontSize: '2.8rem', marginBottom: '0.75rem' }}>NutriPhase</h1>
-          <p className="text-muted" style={{ fontSize: '1.05rem', lineHeight: 1.8, maxWidth: '300px', margin: '0 auto 2.5rem' }}>
+          <h1 className="gradient-text" style={{ fontSize: 'clamp(2rem, 8vw, 2.8rem)', marginBottom: '0.75rem' }}>NutriPhase</h1>
+          <p className="text-muted" style={{ fontSize: '1rem', lineHeight: 1.6, maxWidth: '320px', margin: '0 auto 2rem' }}>
             Your personal health & nutrition assistant — meals perfectly timed to your body's phases.
           </p>
 
-          {/* Feature bullets */}
-          {[
-            '🩸 Menstrual cycle-aware meal plans',
-            '🌿 Veg / Non-Veg / Vegan support',
-            '⚠️ Automatic allergen filtering',
-            '📅 Full day + 7-day unique meal plans',
-          ].map(f => (
-            <div key={f} className="flex items-center gap-3 text-left mb-3" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1rem' }}>
-              <span style={{ fontSize: '1.1rem' }}>{f.split(' ')[0]}</span>
-              <span className="text-sm" style={{ color: 'var(--color-text)' }}>{f.slice(f.indexOf(' ') + 1)}</span>
-            </div>
-          ))}
+          {/* Feature bullets - Hide on very small mobile if needed, or stack nicely */}
+          <div style={{ display: 'grid', gap: '0.75rem' }}>
+            {[
+              '🩸 Menstrual cycle-aware meal plans',
+              '🌿 Veg / Non-Veg / Vegan support',
+              '⚠️ Automatic allergen filtering',
+              '📅 Full day + 7-day unique meal plans',
+            ].map(f => (
+              <div key={f} className="flex items-center gap-3 text-left" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1rem', border: '1px solid var(--color-border)' }}>
+                <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{f.split(' ')[0]}</span>
+                <span className="text-sm" style={{ color: 'var(--color-text)' }}>{f.slice(f.indexOf(' ') + 1)}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* ── Right panel: form ── */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem' }}>
+      <div className="login-form-panel" style={{ flex: '1 1 420px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(2rem, 5vw, 3rem) 1.5rem' }}>
         <div style={{ width: '100%', maxWidth: '420px' }}>
 
           {/* Demo mode banner */}

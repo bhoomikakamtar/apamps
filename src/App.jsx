@@ -9,6 +9,7 @@ import {
 } from 'react-router-dom';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { supabase, hasSupabaseConfig } from './supabaseClient';
 
 import Login from './components/Login';
 import Home from './components/Home';
@@ -17,6 +18,7 @@ import Results from './components/Results';
 import History from './components/History';
 import Settings from './components/Settings';
 import About from './components/About';
+import NotificationManager from './components/NotificationManager';
 
 import { Leaf, LogOut, User, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
@@ -83,9 +85,10 @@ function UserMenu() {
   };
 
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
+    <div ref={ref} className="user-menu-container" style={{ position: 'relative' }}>
       <button
         onClick={() => setOpen(o => !o)}
+        className="user-menu-btn"
         style={{
           background: 'none',
           border: '1px solid var(--color-border)',
@@ -94,7 +97,8 @@ function UserMenu() {
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem'
+          gap: '0.5rem',
+          whiteSpace: 'nowrap'
         }}
       >
         <div style={{
@@ -107,18 +111,19 @@ function UserMenu() {
           justifyContent: 'center',
           color: '#fff',
           fontWeight: 700,
-          fontSize: '0.75rem'
+          fontSize: '0.75rem',
+          flexShrink: 0
         }}>
           {initials}
         </div>
 
-        <span style={{ fontSize: '0.85rem' }}>{name}</span>
+        <span className="user-name-text" style={{ fontSize: '0.85rem' }}>{name}</span>
 
-        <ChevronDown size={14} />
+        <ChevronDown size={14} className="user-menu-chevron" />
       </button>
 
       {open && (
-        <div style={{
+        <div className="user-menu-dropdown" style={{
           position: 'absolute',
           right: 0,
           top: 'calc(100% + 8px)',
@@ -127,7 +132,8 @@ function UserMenu() {
           borderRadius: '10px',
           padding: '0.5rem',
           minWidth: 200,
-          zIndex: 100
+          zIndex: 100,
+          boxShadow: 'var(--shadow-glass)'
         }}>
           <div style={{ padding: '0.75rem', borderBottom: '1px solid var(--color-border)' }}>
             <div style={{ fontWeight: 600 }}>{name}</div>
@@ -139,14 +145,16 @@ function UserMenu() {
               navigate('/settings');
               setOpen(false);
             }}
-            style={{ width: '100%', padding: '0.5rem', textAlign: 'left' }}
+            className="dropdown-item"
+            style={{ width: '100%', padding: '0.6rem 0.75rem', textAlign: 'left', background: 'none', border: 'none', color: 'var(--color-text)', cursor: 'pointer', borderRadius: 'var(--radius-sm)' }}
           >
             <User size={14} /> Settings
           </button>
 
           <button
             onClick={handleSignOut}
-            style={{ width: '100%', padding: '0.5rem', textAlign: 'left', color: 'red' }}
+            className="dropdown-item"
+            style={{ width: '100%', padding: '0.6rem 0.75rem', textAlign: 'left', color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', borderRadius: 'var(--radius-sm)' }}
           >
             <LogOut size={14} /> Sign Out
           </button>
@@ -164,42 +172,103 @@ const NAV_ITEMS = [
   { to: '/about', label: 'About' }
 ];
 function Navbar() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const location = useLocation();
+  const [resending, setResending] = useState(false);
+  const [resendMsg, setResendMsg] = useState('');
 
   if (location.pathname === '/') return null;
 
+  const isUnverified = user && hasSupabaseConfig && !user.email_confirmed_at;
+
+  const handleResend = async () => {
+    setResending(true);
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: user.email,
+    });
+    setResending(false);
+    setResendMsg(error ? 'Error sending email' : 'Verification email sent!');
+    setTimeout(() => setResendMsg(''), 4000);
+  };
+
   return (
-    <nav className="navbar">
-      <NavLink to="/home" className="brand">
-        <Leaf size={22} /> NutriPhase
-      </NavLink>
-
-      <div className="nav-links" style={{ display: 'flex', gap: '10px' }}>
-        {NAV_ITEMS.map(item => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            style={({ isActive }) => ({
-              padding: '8px 16px',
-              borderRadius: '8px',
-              textDecoration: 'none',
-              fontWeight: 500,
-              transition: '0.2s',
-              background: isActive
-                ? 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))'
-                : 'transparent',
-              color: isActive ? '#fff' : 'var(--color-text)',
-              border: '1px solid var(--color-border)'
-            })}
+    <>
+      {isUnverified && (
+        <div style={{
+          background: 'rgba(245, 158, 11, 0.15)',
+          borderBottom: '1px solid rgba(245, 158, 11, 0.3)',
+          padding: '0.6rem 1rem',
+          textAlign: 'center',
+          fontSize: '0.85rem',
+          color: '#F59E0B',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '1rem'
+        }}>
+          <span>Please verify your email to enable all features.</span>
+          <button 
+            onClick={handleResend} 
+            disabled={resending}
+            style={{ 
+              background: 'var(--color-accent)', 
+              color: 'white', 
+              border: 'none', 
+              padding: '0.2rem 0.6rem', 
+              borderRadius: '4px', 
+              fontSize: '0.75rem', 
+              cursor: 'pointer' 
+            }}
           >
-            {item.label}
+            {resending ? 'Sending...' : 'Resend Email'}
+          </button>
+          {resendMsg && <span style={{ fontSize: '0.75rem' }}>{resendMsg}</span>}
+        </div>
+      )}
+      <nav className="navbar">
+        <div className="navbar-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '1200px', margin: '0 auto', gap: '1rem' }}>
+          <NavLink to="/home" className="brand">
+            <Leaf size={22} style={{ flexShrink: 0 }} /> 
+            <span className="brand-name">NutriPhase</span>
           </NavLink>
-        ))}
-      </div>
 
-      {user && <UserMenu />}
-    </nav>
+          <div className="nav-links-wrapper" style={{ flex: 1, display: 'flex', justifyContent: 'center', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <div className="nav-links" style={{ display: 'flex', gap: '4px', padding: '4px' }}>
+              {NAV_ITEMS.map(item => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className="nav-link"
+                  style={({ isActive }) => ({
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    textDecoration: 'none',
+                    fontWeight: 500,
+                    fontSize: '0.9rem',
+                    transition: '0.2s',
+                    background: isActive
+                      ? 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))'
+                      : 'transparent',
+                    color: isActive ? '#fff' : 'var(--color-text)',
+                    border: '1px solid var(--color-border)',
+                    whiteSpace: 'nowrap'
+                  })}
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
+          </div>
+
+          {user && (
+            <div className="navbar-user" style={{ flexShrink: 0 }}>
+              <UserMenu />
+            </div>
+          )}
+        </div>
+      </nav>
+    </>
   );
 }
 
@@ -208,6 +277,7 @@ function AppShell() {
   return (
     <>
       <Navbar />
+      <NotificationManager />
 
       <Routes>
         {/* Public */}

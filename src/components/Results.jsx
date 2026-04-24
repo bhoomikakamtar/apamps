@@ -57,7 +57,7 @@ export default function Results() {
   );
 
   return (
-    <div className="animate-fade-in-up" style={{ maxWidth:'920px', margin:'0 auto' }}>
+    <div className="animate-fade-in-up container" style={{ maxWidth:'960px' }}>
 
       {/* Top bar */}
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">

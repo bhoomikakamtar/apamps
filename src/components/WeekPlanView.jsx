@@ -92,14 +92,19 @@ export default function WeekPlanView({ plan }) {
         <p className="text-sm text-muted mb-4">Click any meal slot to see its full details. Today is highlighted.</p>
 
         {/* Desktop: grid of 7 columns */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: "0.6rem", overflowX: "auto" }}>
+        <div className="week-desktop-grid" style={{ 
+          display: "grid", 
+          gridTemplateColumns: "repeat(7,1fr)", 
+          gap: "0.6rem", 
+          overflowX: "auto" 
+        }}>
           {plan.map((dayPlan, i) => (
             <DayColumn key={dayPlan.day} dayPlan={dayPlan} isActive={i === todayIdx} />
           ))}
         </div>
 
         {/* Mobile navigator */}
-        <div style={{ display: "none" }} id="week-mobile-nav">
+        <div className="week-mobile-nav" style={{ display: "none" }}>
           <div className="flex items-center justify-between mt-4">
             <button
               className="btn btn-ghost"
@@ -124,17 +129,17 @@ export default function WeekPlanView({ plan }) {
       {/* Weekly totals summary */}
       <div className="glass-panel" style={{ padding: "1.5rem" }}>
         <h4 className="mb-4">Weekly Nutritional Summary</h4>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "0.75rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "0.75rem" }}>
           {[
             { label: "Avg. Calories", value: Math.round(plan.reduce((s,d) => s + d.totalCalories,0) / 7), unit: "kcal/day", color: "var(--color-primary)" },
             { label: "Avg. Protein",  value: Math.round(plan.reduce((s,d) => s + d.totalProtein, 0) / 7), unit: "g/day",   color: "#EF4444" },
             { label: "Avg. Carbs",    value: Math.round(plan.reduce((s,d) => s + d.totalCarbs,   0) / 7), unit: "g/day",   color: "#F59E0B" },
             { label: "Avg. Fats",     value: Math.round(plan.reduce((s,d) => s + d.totalFats,    0) / 7), unit: "g/day",   color: "#3B82F6" },
           ].map(s => (
-            <div key={s.label} className="stat-card">
+            <div key={s.label} className="stat-card" style={{ padding: '1rem 0.5rem' }}>
               <div className="stat-value" style={{ color: s.color, fontSize: "1.3rem" }}>{s.value}</div>
-              <div className="stat-label">{s.label}</div>
-              <div className="text-xs text-faint">{s.unit}</div>
+              <div className="stat-label" style={{ fontSize: '0.7rem' }}>{s.label}</div>
+              <div className="text-xs text-faint" style={{ fontSize: '0.65rem' }}>{s.unit}</div>
             </div>
           ))}
         </div>
